@@ -16,7 +16,7 @@ def main():
 
     if uploaded_image is not None:
         display_image(uploaded_image)
-        bucket_name = get_bucket_name()
+        bucket_name = "test-tcc"#get_bucket_name()
         if upload_button_pressed():
             s3_interaction = S3Interaction()
             result_message = s3_interaction.upload_image(uploaded_image, bucket_name)

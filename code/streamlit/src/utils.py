@@ -16,7 +16,7 @@ def get_bucket_name():
     Returns:
         str: O nome do bucket inserido pelo usuário.
     """
-    return st.text_input("test-tcc")
+    return st.text_input("Digite o nome do Bucket")
 
 def upload_button_pressed():
     """
