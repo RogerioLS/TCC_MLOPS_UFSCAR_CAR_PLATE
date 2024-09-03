@@ -13,10 +13,10 @@ class S3Interaction:
         aws_secret_access_key=st.secrets["aws_secret_access_key"],
         region_name=st.secrets["aws_default_region"]"""
         self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=st.secrets["AWS_ACCESS_KEY_ID"],
-            aws_secret_access_key=st.secrets["AWS_SECRET_ACCESS_KEY"],
-            region_name=st.secrets["AWS_DEFAULT_REGION"]
+            service_name = 's3',
+            aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"],
+            region_name = st.secrets["AWS_DEFAULT_REGION"]
         )
 
     def upload_image(self, image, bucket_name, object_name=None):
