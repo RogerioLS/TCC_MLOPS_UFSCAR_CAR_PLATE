@@ -1,0 +1,49 @@
+
+name: Build and Push Docker Image to ECR
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1                    # Substitua pela sua região da AWS
+  ECR_REPOSITORY: my-lambda-ecr-repo        # Nome do seu repositório no ECR
+  IMAGE_TAG: latest                         # Tag da imagem Docker (pode ser alterado para commit SHA, por exemplo)
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set default.region $AWS_REGION
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Download YOLOv8 model from S3
+        run: |
+          curl -o model_layer.zip https://model-detect-plate-yolov8.s3.amazonaws.com/model_layer.zip
+          unzip model_layer.zip -d model
+          ls model  # Verifica os arquivos extraídos
+
+      - name: Build Docker image
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Tag Docker image
+        run: |
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push <aws_account_id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
