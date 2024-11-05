@@ -21,3 +21,4 @@ rad.json
 #Test results file
 TestResults.xm
 code/streamlit/.streamlit/
+__pycache__/
