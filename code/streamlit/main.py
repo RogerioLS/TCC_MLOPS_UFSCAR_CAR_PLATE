@@ -2,6 +2,14 @@ import streamlit as st
 from src.utils import display_image, get_bucket_name, upload_button_pressed
 from src.s3_lambda_interaction import S3Interaction
 
+# Configurações de tema e estilo
+st.set_page_config(
+    page_title="Reconhecimento de Placas de Carro",
+    page_icon="🚗",
+    layout="wide",  # Tela cheia para aproveitar o espaço
+    initial_sidebar_state="expanded",
+)
+
 def main():
     """
     Função principal que define a interface do usuário
