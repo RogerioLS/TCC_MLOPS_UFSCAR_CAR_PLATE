@@ -1,0 +1,4 @@
+awscli==1.34.21
+boto3==1.35.21
+botocore==1.35.21
+streamlit==1.38.0

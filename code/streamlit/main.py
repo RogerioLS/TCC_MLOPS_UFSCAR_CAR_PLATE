@@ -2,7 +2,6 @@ import streamlit as st
 from src.utils import display_image, get_bucket_name, upload_button_pressed
 from src.s3_lambda_interaction import S3Interaction
 
-
 def main():
     """
     Função principal que define a interface do usuário
@@ -16,7 +15,7 @@ def main():
 
     if uploaded_image is not None:
         display_image(uploaded_image)
-        bucket_name = "upload-img-test-stage"#get_bucket_name()
+        bucket_name = "teste-imagem-2"#get_bucket_name()
         if upload_button_pressed():
             s3_interaction = S3Interaction()
             result_message = s3_interaction.upload_image(uploaded_image, bucket_name)
