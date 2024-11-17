@@ -1,1 +1,3 @@
-![TCCPlateDetection](https://github.com/user-attachments/assets/024f9418-6d0e-4039-a488-e5edc453211b)
+(![DeteccaoPlaca drawio](https://github.com/user-attachments/assets/b8139ccf-8a96-45df-851a-56308bbd5045)
+
+
