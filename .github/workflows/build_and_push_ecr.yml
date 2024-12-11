@@ -44,6 +44,7 @@ jobs:
       - name: Push Docker image to ECR
         run: |
           docker push 709006733164.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_OCR:$IMAGE_TAG
+
   build-and-push-detect-plate:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_detect_plate')
     runs-on: ubuntu-latest
