@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - main
+      - dev
 
 env:
   AWS_REGION: us-east-1
