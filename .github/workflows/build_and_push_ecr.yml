@@ -9,10 +9,42 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-dev
-  ECR_REPOSITORY_OCR : lambda-ocr
+  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-dev
   IMAGE_TAG: latest
 
 jobs:
+
+  build-and-push-OCR:
+    if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_ocr')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to AWS ECR
+        run: |
+          aws configure set default.region $AWS_REGION
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 709006733164.dkr.ecr.$AWS_REGION.amazonaws.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+
+      - name: Build Docker image
+        run: |
+          cd ./code/lambda_ocr
+          ls
+          docker build -t $ECR_REPOSITORY_OCR:$IMAGE_TAG .
+      - name: Tag Docker image
+        run: |
+          docker tag $ECR_REPOSITORY_OCR:$IMAGE_TAG 709006733164.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_OCR:$IMAGE_TAG
+      - name: Push Docker image to ECR
+        run: |
+          docker push 709006733164.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_OCR:$IMAGE_TAG
+
   build-and-push-detect-plate:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_detect_plate')
     runs-on: ubuntu-latest

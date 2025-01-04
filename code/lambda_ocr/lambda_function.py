@@ -8,7 +8,7 @@ from paddleocr import PaddleOCR
 # Configurações do AWS S3 e DynamoDB
 s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('PlateDetectionInfo')
+table = dynamodb.Table('plate-detection-info-dev')
 
 # Definir o diretório de modelos como /tmp para PaddleOCR
 model_dir = "/tmp/.paddleocr"
@@ -73,14 +73,6 @@ def preprocess_image(image):
     return image_normalized
 
 def lambda_handler(event, context):
-    #paddle_version = paddle.__version__
-    #paddleocr_version = paddleocr.__version__
-    #numpy_version = np.__version__
-
-    #print(f"PaddlePaddle version: {paddle_version}")
-    #print(f"PaddleOCR version: {paddleocr_version}")
-    #print(f"Numpy version: {numpy_version}")
-    
     # Extrair informações do evento
     bucket_name = event['Records'][0]['s3']['bucket']['name']
     metadata_key = event['Records'][0]['s3']['object']['key']
@@ -108,8 +100,7 @@ def lambda_handler(event, context):
     nparr = np.frombuffer(plate_img,np.uint8)
     imagem = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     imagem_rgb = cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB)
-    
-    #imagem_bgr = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED) 
+
     # Verificar a forma da imagem
     altura, largura, _ = imagem_rgb.shape
     print(f"Shape of the image: {imagem_rgb.shape}, dtype: {imagem_rgb.dtype}")
