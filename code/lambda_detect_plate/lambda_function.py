@@ -25,7 +25,7 @@ modelPlate = YOLO('/var/task/yolov8_model.pt')
 print(f"MODEL_PATH: {MODEL_PATH}")
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('PlateDetectionInfo')
+table = dynamodb.Table('plate-detection-info-dev')
 
 
 def save_metadata(bucket_name, image_key, unique_id):
@@ -100,8 +100,8 @@ def lambda_handler(event, context):
             # Define the new S3 object key for the plate images
             plate_key = os.path.basename(image_key)
 
-            bucket_plate_name= "plate-test-stage"
-        
+            bucket_plate_name= "upload-image-second-stage-dev"
+
             # Upload the annotated image back to S3
             s3_client.upload_fileobj(buf, bucket_plate_name, plate_key, ExtraArgs={'ContentType': 'image/jpeg'})
         

@@ -35,11 +35,11 @@ jobs:
       - name: Download YOLOv8 model from S3
         run: |
           pwd
-          ls 
+          ls
           cd ./code/lambda_detect_plate
           curl -f -o model_layer.zip https://model-detect-plate-yolov8.s3.amazonaws.com/model_layer.zip
           unzip model_layer.zip -d ./  || { echo "Unzip failed"; exit 1; }
-          ls  
+          ls
       - name: Build Docker image
         run: |
           cd ./code/lambda_detect_plate
