@@ -4,12 +4,12 @@ on:
   push:
     branches:
       - master
-      - dev
+      - hml
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-dev
-  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-dev
+  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-hml
+  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-hml
   IMAGE_TAG: latest
 
 jobs:
@@ -31,7 +31,6 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
 
       - name: Build Docker image
         run: |
