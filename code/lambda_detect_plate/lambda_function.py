@@ -25,7 +25,7 @@ modelPlate = YOLO('/var/task/yolov8_model.pt')
 print(f"MODEL_PATH: {MODEL_PATH}")
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('plate-detection-info-dev')
+table = dynamodb.Table('plate-detection-info-hml')
 
 
 def save_metadata(bucket_name, image_key, unique_id):
