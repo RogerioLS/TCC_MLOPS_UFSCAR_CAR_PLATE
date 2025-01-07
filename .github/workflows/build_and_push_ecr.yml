@@ -9,11 +9,10 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-prod
-  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-hml
+  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-prod
   IMAGE_TAG: latest
 
 jobs:
-
   build-and-push-ocr:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_ocr')
     runs-on: ubuntu-latest
@@ -43,7 +42,6 @@ jobs:
       - name: Push Docker image to ECR
         run: |
           docker push 709006733164.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY_OCR:$IMAGE_TAG
-
 
   build-and-push-detect-plate:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_detect_plate')
