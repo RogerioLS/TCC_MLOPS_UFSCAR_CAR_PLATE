@@ -4,11 +4,11 @@ on:
   push:
     branches:
       - master
-      - hml
+      - prod
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-hml
+  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-prod
   ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-hml
   IMAGE_TAG: latest
 
