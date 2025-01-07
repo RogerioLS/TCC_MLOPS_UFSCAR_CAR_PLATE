@@ -8,7 +8,7 @@ from paddleocr import PaddleOCR
 # Configurações do AWS S3 e DynamoDB
 s3_client = boto3.client('s3')
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('plate-detection-info-dev')
+table = dynamodb.Table('plate-detection-info-prod')
 
 # Definir o diretório de modelos como /tmp para PaddleOCR
 model_dir = "/tmp/.paddleocr"
