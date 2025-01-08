@@ -81,7 +81,7 @@ def main():
     # Verifica se uma imagem foi carregada
     if uploaded_image is not None:
         display_image(uploaded_image)
-        bucket_name = "upload-img-test-stage"  # Nome do bucket no S3
+        bucket_name = "upload-image-first-stage-prod"  # Nome do bucket no S3
         dynamodb_table_name = "PlateDetectionInfo"  # Nome da tabela no DynamoDB
 
         # Confirmação do usuário
