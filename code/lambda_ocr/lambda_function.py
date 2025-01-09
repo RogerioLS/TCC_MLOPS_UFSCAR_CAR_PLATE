@@ -116,6 +116,7 @@ def lambda_handler(event, context):
         for linha in resultados:
             for item in linha:
                 if isinstance(item, list) and len(item) > 1:
+                    box, (texto, acuracia) = item
                     textos_detectados.append(texto)
                     acuracias_detectadas.append(Decimal(str(acuracia)))
                 else:
