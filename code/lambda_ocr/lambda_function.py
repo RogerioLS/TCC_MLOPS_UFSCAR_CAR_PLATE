@@ -100,48 +100,48 @@ def lambda_handler(event, context):
     nparr = np.frombuffer(plate_img,np.uint8)
     imagem = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     imagem_rgb = cv2.cvtColor(imagem, cv2.COLOR_BGR2RGB)
-
-    # Verificar a forma da imagem
-    altura, largura, _ = imagem_rgb.shape
     print(f"Shape of the image: {imagem_rgb.shape}, dtype: {imagem_rgb.dtype}")
 
     # Executar OCR na imagem
     try:
         resultados = ocr.ocr(imagem_rgb)
-        print(f"Resultados do OCR: {resultados}")
+        print(f"Resultados do OCR: {resultados}") # apenas o resultado accuracia,
     except Exception as e:
         print(f"Error during OCR: {str(e)}")
         return
 
-    # Extrair e exibir o texto detectado
+    # Extrair e exibir o texto detectado e a acurácia
     textos_detectados = []
-    if (any(resultados)):  # Verifique se há resultados
+    acuracias_detectadas = []
+    if resultados:  # Verifique se há resultados
         for linha in resultados:
             for item in linha:
                 if isinstance(item, list) and len(item) > 1:
-                    box, (texto, *confidencia) = item
-                    conf = confidencia[0] if confidencia else None  # Confiança pode não estar presente
-                    textos_detectados.append((texto))
+                    box, (texto, acuracia) = item
+                    textos_detectados.append(texto)
+                    acuracias_detectadas.append(acuracia)
                 else:
                     print(f"Item inválido encontrado: {item}")
-
     if textos_detectados:
         print("Textos detectados com confiança:")
-        for texto in textos_detectados:
-           print(f"Texto: {texto}")
+        for texto, acuracia in zip(textos_detectados, acuracias_detectadas):
+            print(f"Texto: {texto}, Acurácia: {acuracia}")
     else:
         print("Nenhum texto detectado.")
 
-    # Atualizar o DynamoDB com o texto detectado
-    if textos_detectados:  # Atualizar apenas se houver textos detectados
+    # Atualizar o DynamoDB com o texto detectado e a acurácia
+    if textos_detectados and acuracias_detectadas:  # Atualizar apenas se houver textos e acurácias detectados
         table.update_item(
             Key={
                 'PK': image_name,
                 'timestamp': uuid
             },
-            UpdateExpression="SET detected_text = :text",
-            ExpressionAttributeValues={':text': textos_detectados}
+            UpdateExpression="SET detected_text = :text, plate_accuracy = :accuracy",
+            ExpressionAttributeValues={
+                ':text': textos_detectados,
+                ':accuracy': acuracias_detectadas
+            }
         )
-        print("OCR plate SAVED", image_name, uuid, textos_detectados)
+        print("OCR plate SAVED", image_name, uuid, textos_detectados, acuracias_detectadas)
     else:
-        print("Nenhum texto para salvar no DynamoDB.")
+        print("Nenhum texto ou acurácia para salvar no DynamoDB.")
