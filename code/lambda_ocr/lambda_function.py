@@ -3,6 +3,7 @@ import cv2
 import os
 import numpy as np
 import json
+from decimal import Decimal
 from paddleocr import PaddleOCR
 
 # Configurações do AWS S3 e DynamoDB
@@ -41,8 +42,6 @@ def carregar_imagem_s3(bucket_name, key):
     imagem = cv2.imdecode(imagem_np, cv2.IMREAD_COLOR)
 
     return imagem
-
-
 
 def preprocess_image(image):
 
@@ -117,9 +116,8 @@ def lambda_handler(event, context):
         for linha in resultados:
             for item in linha:
                 if isinstance(item, list) and len(item) > 1:
-                    box, (texto, acuracia) = item
                     textos_detectados.append(texto)
-                    acuracias_detectadas.append(acuracia)
+                    acuracias_detectadas.append(Decimal(str(acuracia)))
                 else:
                     print(f"Item inválido encontrado: {item}")
     if textos_detectados:
