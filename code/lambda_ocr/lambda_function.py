@@ -1,6 +1,7 @@
 import boto3
 import cv2
 import os
+import re
 import numpy as np
 import json
 from decimal import Decimal
@@ -117,30 +118,61 @@ def lambda_handler(event, context):
             for item in linha:
                 if isinstance(item, list) and len(item) > 1:
                     box, (texto, acuracia) = item
-                    textos_detectados.append(texto)
+                    texto_limpo = re.sub(r'[^a-zA-Z0-9]', '', texto)
+                    textos_detectados.append(texto_limpo)
                     acuracias_detectadas.append(Decimal(str(acuracia)))
                 else:
                     print(f"Item inválido encontrado: {item}")
+    # Verificar o formato da placa e definir variáveis adicionais
+    type_plate = "type_plate_not_detect"
+    error_type_plate = 0
+    amount_characters = 0
+    num_letters = 0
+    num_numbers = 0
     if textos_detectados:
+        for texto in textos_detectados:
+            if re.match(r'^[A-Z]{3}\d{4}$', texto):
+                type_plate = "Mercosul"
+                error_type_plate = 1
+                break
+            elif re.match(r'^[A-Z]{3}\d{1}[A-Z]{1}\d{2}$', texto):
+                type_plate = "Brazil"
+                error_type_plate = 1
+                break
+            else:
+                num_letters = sum(c.isalpha() for c in texto)
+                num_numbers = sum(c.isdigit() for c in texto)
+                amount_characters = len(texto)
+                error_type_plate = 0
+        print(f"Type Plate: {type_plate}")
+        print(f"Error Type Plate: {error_type_plate}")
+        print(f"Number of Letters: {num_letters}")
+        print(f"Number of Numbers: {num_numbers}")
+        print(f"Amount of Characters: {amount_characters}")
         print("Textos detectados com confiança:")
         for texto, acuracia in zip(textos_detectados, acuracias_detectadas):
             print(f"Texto: {texto}, Acurácia: {acuracia}")
     else:
         print("Nenhum texto detectado.")
 
-    # Atualizar o DynamoDB com o texto detectado e a acurácia
+    # Atualizar o DynamoDB com o texto detectado, a acurácia e as variáveis adicionais
     if textos_detectados and acuracias_detectadas:  # Atualizar apenas se houver textos e acurácias detectados
         table.update_item(
             Key={
                 'PK': image_name,
                 'timestamp': uuid
             },
-            UpdateExpression="SET detected_text = :text, plate_accuracy = :accuracy",
+            UpdateExpression="SET detected_text = :text, plate_accuracy = :accuracy, type_plate = :type_plate, error_type_plate = :error_type_plate, num_letters = :num_letters, num_numbers = :num_numbers, amount_characters = :amount_characters",
             ExpressionAttributeValues={
                 ':text': textos_detectados,
-                ':accuracy': acuracias_detectadas
+                ':accuracy': acuracias_detectadas,
+                ':type_plate': type_plate,
+                ':error_type_plate': error_type_plate,
+                ':num_letters': num_letters,
+                ':num_numbers': num_numbers,
+                ':amount_characters': amount_characters
             }
         )
-        print("OCR plate SAVED", image_name, uuid, textos_detectados, acuracias_detectadas)
+        print("OCR plate SAVED", image_name, uuid, textos_detectados, acuracias_detectadas, type_plate, error_type_plate, num_letters, num_numbers, amount_characters)
     else:
         print("Nenhum texto ou acurácia para salvar no DynamoDB.")
