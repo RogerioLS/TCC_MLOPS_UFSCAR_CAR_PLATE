@@ -27,7 +27,7 @@ class S3Interaction:
         except Exception as e:
             return f"Erro ao fazer upload: {str(e)}"
 
-def fetch_plate_data(dynamodb_table_name, object_name, max_retries=20, delay=10):
+def fetch_plate_data(dynamodb_table_name, object_name, max_retries=9, delay=10):
     """
     Busca informações da placa no DynamoDB com base no nome do objeto.
 
@@ -51,8 +51,10 @@ def fetch_plate_data(dynamodb_table_name, object_name, max_retries=20, delay=10)
             # Busca o registro mais recente com o nome do objeto
             matching_items = [item for item in items if item.get("PK") == object_name]
             if matching_items:
-                return max(matching_items, key=lambda x: x.get("timestamp", 0))
-
+                plate_data = max(matching_items, key=lambda x: x.get("timestamp", 0))
+                if plate_data.get("detected") == 1 and plate_data.get("detected_text") is not None:
+                    return plate_data
+                
             st.info(f"Tentativa {attempt + 1}/{max_retries}: Dados não encontrados, aguardando {delay} segundos...")
             time.sleep(delay)  # Aguarda antes de tentar novamente
         except Exception as e:

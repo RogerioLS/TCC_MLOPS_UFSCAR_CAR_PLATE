@@ -144,7 +144,7 @@ def lambda_handler(event, context):
                 num_numbers = sum(c.isdigit() for c in texto)
                 amount_characters = len(texto)
                 error_type_plate = 0
-        print(f"Type Plate: {type_plate}")
+        print(f"Type_Plate: {type_plate}")
         print(f"Error Type Plate: {error_type_plate}")
         print(f"Number of Letters: {num_letters}")
         print(f"Number of Numbers: {num_numbers}")
