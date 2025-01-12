@@ -4,6 +4,14 @@ import boto3
 from PIL import Image
 import streamlit as st
 
+# Configurações de tema e estilo
+st.set_page_config(
+    page_title="Reconhecimento de Placas de Carro",
+    page_icon="🚗",
+    #layout="wide",  # Tela cheia para aproveitar o espaço
+    initial_sidebar_state="expanded",
+)
+
 class S3Interaction:
     def __init__(self):
         self.s3_client = boto3.client("s3")
@@ -52,10 +60,10 @@ def fetch_plate_data(dynamodb_table_name, object_name, max_retries=9, delay=10):
             matching_items = [item for item in items if item.get("PK") == object_name]
             if matching_items:
                 plate_data = max(matching_items, key=lambda x: x.get("timestamp", 0))
+                if plate_data.get("detected") == 0:
+                    return plate_data
                 if plate_data.get("detected") == 1 and plate_data.get("detected_text") is not None:
                     return plate_data
-                
-            st.info(f"Tentativa {attempt + 1}/{max_retries}: Dados não encontrados, aguardando {delay} segundos...")
             time.sleep(delay)  # Aguarda antes de tentar novamente
         except Exception as e:
             st.error(f"Erro ao buscar dados no DynamoDB: {str(e)}")
@@ -101,8 +109,32 @@ def display_results(original_image_buffer, plate_data):
             st.error("Não foi possível encontrar informações relacionadas à placa.")
 
 def main():
-    st.title("Reconhecimento de Placas")
+    """
+    Função principal que define a interface do usuário
+    e controla o fluxo de upload da imagem.
+    """
+    # Inicializa a aplicação Streamlit
+    st.title("Reconhecimento de Placas de Carro")
+    
+    # Menu lateral personalizado
+    st.sidebar.markdown('### Sobre o Projeto 🚗')
+    st.sidebar.markdown(
+        """
+        Este projeto foi desenvolvido como parte de um TCC para a detecção automática de placas de carro. 
+        A aplicação utiliza **YOLO** para detectar as placas e **OCR** para reconhecer os caracteres.
 
+        ### Propósito
+        Automatizar o processo de reconhecimento de placas de veículos para aplicações de controle de acesso, monitoramento, 
+        e segurança veicular.
+
+        ### Desenvolvedores
+        - [Rogério Lopes](https://www.linkedin.com/in/rogerio-lopes-57627615b/)
+        - [Fabiana Florentin](https://www.linkedin.com/in/fabiana-f-530a495/)
+
+        ### Repositório
+        - [GitHub](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE)
+        """
+    )
     # Upload de múltiplas imagens pelo usuário
     uploaded_images = st.file_uploader("Carregue uma ou mais imagens", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
 
@@ -140,6 +172,11 @@ def main():
                     # Busca no DynamoDB
                     st.info(f"Aguardando informações no DynamoDB para {uploaded_image.name}...")
                     plate_data = fetch_plate_data(dynamodb_table_name, object_name)
+
+                    # Verifica se a plata foi detectada
+                    if plate_data and plate_data.get("detected") == 0:
+                        st.warning(f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a proxima imagem.")
+                        continue
 
                     # Reposiciona o buffer da imagem antes de reutilizá-lo
                     image_buffer_copy.seek(0)

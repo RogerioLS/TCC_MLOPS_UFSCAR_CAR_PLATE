@@ -28,9 +28,6 @@ os.makedirs(rec_model_dir, exist_ok=True)
 
 # Inicializar o PaddleOCR com os diretórios dos modelos
 ocr = PaddleOCR(lang='en', det_model_dir=det_model_dir, rec_model_dir=rec_model_dir, cls_model_dir=cls_model_dir)
-#use_angle_cls=True
-
-#ocr = PaddleOCR(lang='en')
 
 # Função para carregar imagem do S3
 def carregar_imagem_s3(bucket_name, key):
