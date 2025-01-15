@@ -7,6 +7,7 @@ import numpy as np
 from PIL import Image
 import uuid
 from datetime import datetime
+from ultralytics import YOLO
 
 s3_client = boto3.client('s3')
 
@@ -16,8 +17,6 @@ YOLOV8_DIR = '/tmp'
 os.environ['YOLO_CONFIG_DIR'] = "/tmp"
 # Verify that the value has been updated
 print(f"YOLO_CONFIG_DIR: {os.getenv('YOLO_CONFIG_DIR')}")
-
-from ultralytics import YOLO
 
 # Define model path YOLOv8
 MODEL_PATH = '/var/task/yolov8_model.pt'
