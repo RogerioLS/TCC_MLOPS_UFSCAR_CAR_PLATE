@@ -129,7 +129,7 @@ def lambda_handler(event: dict, context: Optional[object]) -> None:
         context (Optional[object]): The context object.
 
     Returns:
-        None
+        None 
     """
     bucket_name = event['Records'][0]['s3']['bucket']['name']
     image_key = event['Records'][0]['s3']['object']['key']
