@@ -109,7 +109,7 @@ class PlateDetection:
                 buf.seek(0)
 
                 plate_key = os.path.basename(image_key)
-                bucket_plate_name = "upload-image-second-stage-prod"
+                bucket_plate_name = "upload-image-second-stage-hml"
 
                 self.s3_client.upload_fileobj(buf, bucket_plate_name, plate_key, ExtraArgs={'ContentType': 'image/jpeg'})
 
