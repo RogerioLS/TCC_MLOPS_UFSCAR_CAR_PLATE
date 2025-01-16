@@ -1,84 +1,25 @@
-import time
-from io import BytesIO
-import boto3
-from PIL import Image
-import streamlit as st
+from src import st
+from src import time
+from src import BytesIO
+from src import Dict, Any
+from src import Image
+from src import S3Interaction
+from src import DynamoDBInteraction
 
 # Configurações de tema e estilo
 st.set_page_config(
     page_title="Reconhecimento de Placas de Carro",
     page_icon="🚗",
-    #layout="wide",  # Tela cheia para aproveitar o espaço
     initial_sidebar_state="expanded",
 )
 
-class S3Interaction:
-    def __init__(self):
-        self.s3_client = boto3.client("s3")
-
-    def upload_image(self, image_buffer, bucket_name, object_name):
-        """
-        Faz upload da imagem para o bucket S3.
-
-        Args:
-            image_buffer: Buffer da imagem a ser enviada.
-            bucket_name: Nome do bucket S3.
-            object_name: Nome do objeto no S3.
-
-        Returns:
-            Mensagem de sucesso com o nome do objeto.
-        """
-        try:
-            image_buffer.seek(0)
-            self.s3_client.upload_fileobj(image_buffer, bucket_name, object_name)
-            return f"Upload realizado com sucesso: {object_name}"
-        except Exception as e:
-            return f"Erro ao fazer upload: {str(e)}"
-
-def fetch_plate_data(dynamodb_table_name, object_name, max_retries=9, delay=10):
-    """
-    Busca informações da placa no DynamoDB com base no nome do objeto.
-
-    Args:
-        dynamodb_table_name: Nome da tabela no DynamoDB.
-        object_name: Nome do objeto correspondente no S3.
-        max_retries: Número máximo de tentativas de busca.
-        delay: Tempo de espera entre as tentativas (em segundos).
-
-    Returns:
-        Dados da placa ou None, se não encontrado.
-    """
-    dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table(dynamodb_table_name)
-
-    for attempt in range(max_retries):
-        try:
-            response = table.scan()
-            items = response.get("Items", [])
-
-            # Busca o registro mais recente com o nome do objeto
-            matching_items = [item for item in items if item.get("PK") == object_name]
-            if matching_items:
-                plate_data = max(matching_items, key=lambda x: x.get("timestamp", 0))
-                if plate_data.get("detected") == 0:
-                    return plate_data
-                if plate_data.get("detected") == 1 and plate_data.get("detected_text") is not None:
-                    return plate_data
-            time.sleep(delay)  # Aguarda antes de tentar novamente
-        except Exception as e:
-            st.error(f"Erro ao buscar dados no DynamoDB: {str(e)}")
-            return None
-
-    st.error("Tempo de espera esgotado. Não foi possível encontrar informações relacionadas à placa.")
-    return None
-
-def display_results(original_image_buffer, plate_data):
+def display_results(original_image_buffer: BytesIO, plate_data: Dict[str, Any]) -> None:
     """
     Exibe os resultados da detecção na interface do usuário.
 
     Args:
-        original_image_buffer: Buffer de imagem original.
-        plate_data: Dados da placa encontrados no DynamoDB.
+        original_image_buffer (BytesIO): Buffer de imagem original.
+        plate_data (Dict[str, Any]): Dados da placa encontrados no DynamoDB.
     """
     col1, col2 = st.columns(2)
 
@@ -108,7 +49,7 @@ def display_results(original_image_buffer, plate_data):
         else:
             st.error("Não foi possível encontrar informações relacionadas à placa.")
 
-def main():
+def main() -> None:
     """
     Função principal que define a interface do usuário
     e controla o fluxo de upload da imagem.
@@ -151,6 +92,7 @@ def main():
             # Botão para realizar o upload
             if st.button("Fazer Upload"):
                 s3_interaction = S3Interaction()
+                dynamodb_interaction = DynamoDBInteraction()
 
                 for uploaded_image in uploaded_images:
                     # Mantém os dados da imagem em um buffer
@@ -171,11 +113,11 @@ def main():
 
                     # Busca no DynamoDB
                     st.info(f"Aguardando informações no DynamoDB para {uploaded_image.name}...")
-                    plate_data = fetch_plate_data(dynamodb_table_name, object_name)
+                    plate_data = dynamodb_interaction.fetch_plate_data(dynamodb_table_name, object_name)
 
-                    # Verifica se a plata foi detectada
+                    # Verifica se a placa foi detectada
                     if plate_data and plate_data.get("detected") == 0:
-                        st.warning(f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a proxima imagem.")
+                        st.warning(f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a próxima imagem.")
                         continue
 
                     # Reposiciona o buffer da imagem antes de reutilizá-lo
