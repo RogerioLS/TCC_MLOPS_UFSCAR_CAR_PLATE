@@ -54,5 +54,3 @@ def copy_files(row):
 	shutil.move(row['txt_path'], new_txt_path)
 
 	print(f"Copied {row['image_path']} and {row['txt_path']} to {row['move_path']}")
-
-	

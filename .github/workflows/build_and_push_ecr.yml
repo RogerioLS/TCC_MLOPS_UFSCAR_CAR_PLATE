@@ -4,17 +4,16 @@ on:
   push:
     branches:
       - master
-      - main
+      - prod
 
 env:
-  AWS_REGION: us-east-1                    
-  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image       
-  ECR_REPOSITORY_OCR : lambda-ocr
-  IMAGE_TAG: latest  
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_DETECT_IMAGE: lambda-detect-image-plate-prod
+  ECR_REPOSITORY_OCR : lambda-detect-image-plate-ocr-prod
+  IMAGE_TAG: latest
 
 jobs:
-
-  build-and-push-OCR:
+  build-and-push-ocr:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_ocr')
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +31,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-
       - name: Build Docker image
         run: |
           cd ./code/lambda_ocr
@@ -48,7 +46,6 @@ jobs:
   build-and-push-detect-plate:
     if: github.event_name == 'push' && contains(github.event.head_commit.message, 'lambda_detect_plate')
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -67,11 +64,11 @@ jobs:
       - name: Download YOLOv8 model from S3
         run: |
           pwd
-          ls 
+          ls
           cd ./code/lambda_detect_plate
           curl -f -o model_layer.zip https://model-detect-plate-yolov8.s3.amazonaws.com/model_layer.zip
           unzip model_layer.zip -d ./  || { echo "Unzip failed"; exit 1; }
-          ls  
+          ls
       - name: Build Docker image
         run: |
           cd ./code/lambda_detect_plate
