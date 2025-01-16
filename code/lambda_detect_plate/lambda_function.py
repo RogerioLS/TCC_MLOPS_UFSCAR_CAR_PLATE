@@ -9,11 +9,12 @@ from datetime import datetime
 from ultralytics import YOLO
 from typing import Optional
 
+
 class PlateDetection:
     def __init__(self):
         self.s3_client = boto3.client('s3')
         self.dynamodb = boto3.resource('dynamodb')
-        self.table = self.dynamodb.Table('plate-detection-info-prod')
+        self.table = self.dynamodb.Table('plate-detection-info-hml')
         self.model_path = '/var/task/yolov8_model.pt'
         self.model = YOLO(self.model_path)
         self.yolo_config_dir = "/tmp"
