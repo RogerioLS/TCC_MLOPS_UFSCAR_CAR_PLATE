@@ -1,187 +1,43 @@
-import time
-from io import BytesIO
 import boto3
-from PIL import Image
 import streamlit as st
-
-# Configurações de tema e estilo
-st.set_page_config(
-    page_title="Reconhecimento de Placas de Carro",
-    page_icon="🚗",
-    #layout="wide",  # Tela cheia para aproveitar o espaço
-    initial_sidebar_state="expanded",
-)
+from botocore.exceptions import NoCredentialsError
 
 class S3Interaction:
+    """
+    Classe responsável pela interação com o serviço S3 da AWS.
+    """
     def __init__(self):
-        self.s3_client = boto3.client("s3")
-
-    def upload_image(self, image_buffer, bucket_name, object_name):
         """
-        Faz upload da imagem para o bucket S3.
+        Inicializa o cliente S3 usando as credenciais armazenadas no Streamlit secrets.
+        aws_access_key_id=st.secrets["aws_access_key_id"],
+        aws_secret_access_key=st.secrets["aws_secret_access_key"],
+        region_name=st.secrets["aws_default_region"]"""
+        self.s3_client = boto3.client(
+            service_name = 's3',
+            aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"],
+            region_name = st.secrets["AWS_DEFAULT_REGION"]
+        )
+
+    def upload_image(self, image, bucket_name, object_name=None):
+        """
+        Faz o upload de uma imagem para um bucket S3.
 
         Args:
-            image_buffer: Buffer da imagem a ser enviada.
-            bucket_name: Nome do bucket S3.
-            object_name: Nome do objeto no S3.
+            image (file): A imagem a ser enviada.
+            bucket_name (str): O nome do bucket S3.
+            object_name (str, optional): O nome do arquivo no S3. Se não for fornecido, o nome da imagem será utilizado.
 
         Returns:
-            Mensagem de sucesso com o nome do objeto.
+            str: Mensagem indicando o resultado do upload.
         """
+        if object_name is None:
+            object_name = image.name
+
         try:
-            image_buffer.seek(0)
-            self.s3_client.upload_fileobj(image_buffer, bucket_name, object_name)
+            self.s3_client.upload_fileobj(image, bucket_name, object_name)
             return f"Upload realizado com sucesso: {object_name}"
+        except NoCredentialsError:
+            return "Credenciais da AWS não encontradas."
         except Exception as e:
-            return f"Erro ao fazer upload: {str(e)}"
-
-def fetch_plate_data(dynamodb_table_name, object_name, max_retries=9, delay=10):
-    """
-    Busca informações da placa no DynamoDB com base no nome do objeto.
-
-    Args:
-        dynamodb_table_name: Nome da tabela no DynamoDB.
-        object_name: Nome do objeto correspondente no S3.
-        max_retries: Número máximo de tentativas de busca.
-        delay: Tempo de espera entre as tentativas (em segundos).
-
-    Returns:
-        Dados da placa ou None, se não encontrado.
-    """
-    dynamodb = boto3.resource("dynamodb")
-    table = dynamodb.Table(dynamodb_table_name)
-
-    for attempt in range(max_retries):
-        try:
-            response = table.scan()
-            items = response.get("Items", [])
-
-            # Busca o registro mais recente com o nome do objeto
-            matching_items = [item for item in items if item.get("PK") == object_name]
-            if matching_items:
-                plate_data = max(matching_items, key=lambda x: x.get("timestamp", 0))
-                if plate_data.get("detected") == 0:
-                    return plate_data
-                if plate_data.get("detected") == 1 and plate_data.get("detected_text") is not None:
-                    return plate_data
-            time.sleep(delay)  # Aguarda antes de tentar novamente
-        except Exception as e:
-            st.error(f"Erro ao buscar dados no DynamoDB: {str(e)}")
-            return None
-
-    st.error("Tempo de espera esgotado. Não foi possível encontrar informações relacionadas à placa.")
-    return None
-
-def display_results(original_image_buffer, plate_data):
-    """
-    Exibe os resultados da detecção na interface do usuário.
-
-    Args:
-        original_image_buffer: Buffer de imagem original.
-        plate_data: Dados da placa encontrados no DynamoDB.
-    """
-    col1, col2 = st.columns(2)
-
-    # Rewind buffer para reutilização
-    original_image_buffer.seek(0)
-    original_image = Image.open(original_image_buffer)
-
-    # Exibe a imagem original
-    with col1:
-        st.image(original_image, caption="Imagem Original", use_column_width=True)
-
-    # Exibe os resultados do DynamoDB
-    with col2:
-        if plate_data:
-            if plate_data.get("detected") == 0:
-                st.warning("Nenhuma placa detectada na imagem.")
-                return
-            st.success("Dados encontrados no DynamoDB:")
-            st.write("**Cropped Image Path:** ", plate_data.get("cropped_image_path"))
-            st.write("**Detected:** ", plate_data.get("detected"))
-            st.write("**Detected Text:** ", plate_data.get("detected_text"))
-            st.write("**Image Path:** ", plate_data.get("image_path"))
-            # Exibe a imagem recortada da placa, se disponível
-            cropped_image_path = plate_data.get("cropped_image_path")
-            if cropped_image_path:
-                st.image(cropped_image_path, caption="Placa Detectada", use_column_width=True)
-        else:
-            st.error("Não foi possível encontrar informações relacionadas à placa.")
-
-def main():
-    """
-    Função principal que define a interface do usuário
-    e controla o fluxo de upload da imagem.
-    """
-    # Inicializa a aplicação Streamlit
-    st.title("Reconhecimento de Placas de Carro")
-    
-    # Menu lateral personalizado
-    st.sidebar.markdown('### Sobre o Projeto 🚗')
-    st.sidebar.markdown(
-        """
-        Este projeto foi desenvolvido como parte de um TCC para a detecção automática de placas de carro. 
-        A aplicação utiliza **YOLO** para detectar as placas e **OCR** para reconhecer os caracteres.
-
-        ### Propósito
-        Automatizar o processo de reconhecimento de placas de veículos para aplicações de controle de acesso, monitoramento, 
-        e segurança veicular.
-
-        ### Desenvolvedores
-        - [Rogério Lopes](https://www.linkedin.com/in/rogerio-lopes-57627615b/)
-        - [Fabiana Florentin](https://www.linkedin.com/in/fabiana-f-530a495/)
-
-        ### Repositório
-        - [GitHub](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE)
-        """
-    )
-    # Upload de múltiplas imagens pelo usuário
-    uploaded_images = st.file_uploader("Carregue uma ou mais imagens", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
-
-    if uploaded_images:
-        # Configurações do S3 e DynamoDB
-        bucket_name = "upload-image-first-stage-hml"
-        dynamodb_table_name = "plate-detection-info-hml"
-
-        # Confirmação do usuário
-        confirm = st.checkbox("Você confirma que as imagens contêm placas?")
-        if confirm:
-            st.success("Imagens confirmadas! Você pode fazer o upload.")
-
-            # Botão para realizar o upload
-            if st.button("Fazer Upload"):
-                s3_interaction = S3Interaction()
-
-                for uploaded_image in uploaded_images:
-                    # Mantém os dados da imagem em um buffer
-                    uploaded_image_buffer = BytesIO(uploaded_image.read())
-                    uploaded_image_buffer.seek(0)
-
-                    # Cria uma cópia do buffer para evitar fechamento prematuro
-                    image_buffer_copy = BytesIO(uploaded_image_buffer.getvalue())
-
-                    # Exibe a imagem original carregada
-                    st.subheader(f"Imagem carregada: {uploaded_image.name}")
-                    st.image(image_buffer_copy, caption="Imagem Original", use_column_width=True)
-
-                    # Criar um nome único para o objeto no S3
-                    object_name = f"{time.time_ns()}_{uploaded_image.name}"
-                    result_message = s3_interaction.upload_image(uploaded_image_buffer, bucket_name, object_name)
-                    st.success(result_message)
-
-                    # Busca no DynamoDB
-                    st.info(f"Aguardando informações no DynamoDB para {uploaded_image.name}...")
-                    plate_data = fetch_plate_data(dynamodb_table_name, object_name)
-
-                    # Verifica se a plata foi detectada
-                    if plate_data and plate_data.get("detected") == 0:
-                        st.warning(f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a proxima imagem.")
-                        continue
-
-                    # Reposiciona o buffer da imagem antes de reutilizá-lo
-                    image_buffer_copy.seek(0)
-                    # Exibe resultados
-                    display_results(image_buffer_copy, plate_data)
-
-if __name__ == "__main__":
-    main()
+            return f"Ocorreu um erro: {str(e)}"
