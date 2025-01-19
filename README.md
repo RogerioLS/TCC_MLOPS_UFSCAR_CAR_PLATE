@@ -98,11 +98,11 @@ Este projeto tem como objetivo detectar placas de carro utilizando o modelo YOLO
 - Os resultados serão exibidos na interface do usuário da aplicação Streamlit.
 
 #### Arquitetura
+![](images/streamlit_arquitetura.png)
+---
 ![](images/arquitetura_aws.png)
 ---
 ![](images/pipeline_ci_cd.png)
----
-![](images/streamlit_arquitetura.png)
 
 #### Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests para melhorias e correções.
