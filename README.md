@@ -101,6 +101,8 @@ Este projeto tem como objetivo detectar placas de carro utilizando o modelo YOLO
 ![](images/arquitetura_aws.png)
 ---
 ![](images/pipeline_ci_cd.png)
+---
+![](images/streamlit_arquitetura.png)
 
 #### Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests para melhorias e correções.
@@ -138,6 +140,7 @@ Para utilizar o Pre-commit, siga os passos abaixo:
 
 2. Fazer um commit:
    - Quando você fizer um commit, os hooks de Pre-commit serão executados automaticamente. Se algum dos hooks falhar, o commit será interrompido e você precisará corrigir os problemas antes de tentar novamente.
+   ![](images/pre-commit.png)
 
 #### Licença
 Este projeto está licenciado sob a Licença MIT. Veja o arquivo LICENSE para mais detalhes.
