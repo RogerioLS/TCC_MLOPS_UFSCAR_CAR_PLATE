@@ -1,11 +1,18 @@
-from src import boto3
-from src import BytesIO
+"""Módulo para interação com o S3."""
+
+from src import BytesIO, boto3
+
 
 class S3Interaction:
+    """Classe para interação."""
+
     def __init__(self):
+        """Inicializa a instância do S3Interaction."""
         self.s3_client = boto3.client("s3")
 
-    def upload_image(self, image_buffer: BytesIO, bucket_name: str, object_name: str) -> str:
+    def upload_image(
+        self, image_buffer: BytesIO, bucket_name: str, object_name: str
+    ) -> str:
         """
         Faz upload da imagem para o bucket S3.
 

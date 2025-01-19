@@ -1,12 +1,14 @@
+"""Modulo init."""
+
 import time
 from io import BytesIO
-import boto3
-from PIL import Image
-import streamlit as st
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
-from src.s3 import S3Interaction
+import boto3
+import streamlit as st
+from PIL import Image
 from src.dynamo_db import DynamoDBInteraction
+from src.s3 import S3Interaction
 
 __all__ = [
     "time",

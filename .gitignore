@@ -23,3 +23,4 @@ TestResults.xm
 code/streamlit/.streamlit/
 __pycache__/
 checker.txt
+.DS_Store

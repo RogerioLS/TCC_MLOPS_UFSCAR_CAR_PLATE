@@ -1,10 +1,6 @@
-from src import st
-from src import time
-from src import BytesIO
-from src import Dict, Any
-from src import Image
-from src import S3Interaction
-from src import DynamoDBInteraction
+"""Módulo principal para a aplicação de reconhecimento de placas de carro."""
+
+from src import Any, BytesIO, Dict, DynamoDBInteraction, Image, S3Interaction, st, time
 
 # Configurações de tema e estilo
 st.set_page_config(
@@ -12,6 +8,7 @@ st.set_page_config(
     page_icon="🚗",
     initial_sidebar_state="expanded",
 )
+
 
 def display_results(original_image_buffer: BytesIO, plate_data: Dict[str, Any]) -> None:
     """
@@ -45,27 +42,31 @@ def display_results(original_image_buffer: BytesIO, plate_data: Dict[str, Any]) 
             # Exibe a imagem recortada da placa, se disponível
             cropped_image_path = plate_data.get("cropped_image_path")
             if cropped_image_path:
-                st.image(cropped_image_path, caption="Placa Detectada", use_column_width=True)
+                st.image(
+                    cropped_image_path, caption="Placa Detectada", use_column_width=True
+                )
         else:
             st.error("Não foi possível encontrar informações relacionadas à placa.")
 
+
 def main() -> None:
     """
-    Função principal que define a interface do usuário
-    e controla o fluxo de upload da imagem.
+    Função principal que define a interface do usuário e controla o fluxo de upload da imagem.
+
+    Inicializa a aplicação Streamlit, configura o menu lateral e gerencia o upload de imagens pelo usuário.
     """
     # Inicializa a aplicação Streamlit
     st.title("Reconhecimento de Placas de Carro")
-    
+
     # Menu lateral personalizado
-    st.sidebar.markdown('### Sobre o Projeto 🚗')
+    st.sidebar.markdown("### Sobre o Projeto 🚗")
     st.sidebar.markdown(
         """
-        Este projeto foi desenvolvido como parte de um TCC para a detecção automática de placas de carro. 
+        Este projeto foi desenvolvido como parte de um TCC para a detecção automática de placas de carro.
         A aplicação utiliza **YOLO** para detectar as placas e **OCR** para reconhecer os caracteres.
 
         ### Propósito
-        Automatizar o processo de reconhecimento de placas de veículos para aplicações de controle de acesso, monitoramento, 
+        Automatizar o processo de reconhecimento de placas de veículos para aplicações de controle de acesso, monitoramento,
         e segurança veicular.
 
         ### Desenvolvedores
@@ -77,7 +78,11 @@ def main() -> None:
         """
     )
     # Upload de múltiplas imagens pelo usuário
-    uploaded_images = st.file_uploader("Carregue uma ou mais imagens", type=["jpg", "jpeg", "png"], accept_multiple_files=True)
+    uploaded_images = st.file_uploader(
+        "Carregue uma ou mais imagens",
+        type=["jpg", "jpeg", "png"],
+        accept_multiple_files=True,
+    )
 
     if uploaded_images:
         # Configurações do S3 e DynamoDB
@@ -104,26 +109,39 @@ def main() -> None:
 
                     # Exibe a imagem original carregada
                     st.subheader(f"Imagem carregada: {uploaded_image.name}")
-                    st.image(image_buffer_copy, caption="Imagem Original", use_column_width=True)
+                    st.image(
+                        image_buffer_copy,
+                        caption="Imagem Original",
+                        use_column_width=True,
+                    )
 
                     # Criar um nome único para o objeto no S3
                     object_name = f"{time.time_ns()}_{uploaded_image.name}"
-                    result_message = s3_interaction.upload_image(uploaded_image_buffer, bucket_name, object_name)
+                    result_message = s3_interaction.upload_image(
+                        uploaded_image_buffer, bucket_name, object_name
+                    )
                     st.success(result_message)
 
                     # Busca no DynamoDB
-                    st.info(f"Aguardando informações no DynamoDB para {uploaded_image.name}...")
-                    plate_data = dynamodb_interaction.fetch_plate_data(dynamodb_table_name, object_name)
+                    st.info(
+                        f"Aguardando informações no DynamoDB para {uploaded_image.name}..."
+                    )
+                    plate_data = dynamodb_interaction.fetch_plate_data(
+                        dynamodb_table_name, object_name
+                    )
 
                     # Verifica se a placa foi detectada
                     if plate_data and plate_data.get("detected") == 0:
-                        st.warning(f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a próxima imagem.")
+                        st.warning(
+                            f"Nenhuma placa detectada na imagem {uploaded_image.name}. Pulando para a próxima imagem."
+                        )
                         continue
 
                     # Reposiciona o buffer da imagem antes de reutilizá-lo
                     image_buffer_copy.seek(0)
                     # Exibe resultados
                     display_results(image_buffer_copy, plate_data)
+
 
 if __name__ == "__main__":
     main()
