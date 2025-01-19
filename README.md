@@ -4,10 +4,7 @@
 
 [![Build](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE/actions/workflows/build_and_push_ecr.yml/badge.svg)](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE/actions/workflows/build_and_push_ecr.yml)
 ![License](https://custom-icon-badges.demolab.com/github/license/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=law&color=dark-green)
-![Code size in bytes](https://custom-icon-badges.demolab.com/github/languages/code-size/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=file-code&color=dark-green)
-![Top language](https://custom-icon-badges.demolab.com/github/languages/top/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?color=dark-green)
 ![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=history&color=dark-green)
-![Repo size](https://custom-icon-badges.demolab.com/github/repo-size/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=database)
 ![Languages](https://custom-icon-badges.demolab.com/github/languages/count/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=command-palette&color=red)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 </div>
@@ -107,6 +104,40 @@ Este projeto tem como objetivo detectar placas de carro utilizando o modelo YOLO
 
 #### Contribuição
 Contribuições são bem-vindas! Sinta-se à vontade para abrir issues e pull requests para melhorias e correções.
+
+#### Pre-commit
+Para instalar o Pre-commit, siga os passos abaixo:
+
+1. **Instalar o Pre-commit**:
+   - Use o comando `pip` para instalar o Pre-commit:
+     ```bash
+     pip install pre-commit
+     ```
+
+2. **Adicionar o arquivo de configuração `.pre-commit-config.yaml`**:
+   - Certifique-se de que o arquivo `.pre-commit-config.yaml` está no diretório raiz do seu repositório.
+
+3. **Instalar os hooks de Pre-commit**:
+   - No diretório raiz do seu repositório, execute o seguinte comando para instalar os hooks definidos no arquivo de configuração:
+     ```bash
+     pre-commit install
+     ```
+    - Caso precise atualizar o arquivo `.pre-commit-config.yaml` rode:
+     ```bash
+     pre-commit autoupdate
+     pre-commit install
+     ```
+
+Para utilizar o Pre-commit, siga os passos abaixo:
+
+1. **Executar os hooks de Pre-commit manualmente (opcional)**:
+   - Você pode executar os hooks de Pre-commit manualmente em todos os arquivos do repositório para verificar se há problemas antes de fazer um commit:
+     ```bash
+     pre-commit run --all-files
+     ```
+
+2. **Fazer um commit**:
+   - Quando você fizer um commit, os hooks de Pre-commit serão executados automaticamente. Se algum dos hooks falhar, o commit será interrompido e você precisará corrigir os problemas antes de tentar novamente.
 
 #### Licença
 Este projeto está licenciado sob a Licença MIT. Veja o arquivo LICENSE para mais detalhes.
