@@ -8,6 +8,7 @@
 ![Languages](https://custom-icon-badges.demolab.com/github/languages/count/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=command-palette&color=red)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 </div>
+
 Este projeto tem como objetivo detectar placas de carro utilizando o modelo YOLO e, em seguida, reconhecer os caracteres das placas detectadas utilizando o PaddleOCR. A aplicação é desenvolvida em Streamlit, onde as imagens são carregadas e enviadas para um bucket S3. A detecção de placas é realizada por uma função Lambda com YOLO, que extrai a imagem da placa e a coloca em outro bucket S3. Isso aciona uma segunda função Lambda com PaddleOCR para ler os caracteres da placa e registrar todas as informações no DynamoDB.
 
 #### Estrutura do Projeto
