@@ -5,6 +5,9 @@
 [![Build](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE/actions/workflows/build_and_push_ecr.yml/badge.svg)](https://github.com/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE/actions/workflows/build_and_push_ecr.yml)
 ![License](https://custom-icon-badges.demolab.com/github/license/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=law&color=dark-green)
 ![Last commit](https://custom-icon-badges.demolab.com/github/last-commit/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=history&color=dark-green)
+![Code size in bytes](https://custom-icon-badges.demolab.com/github/languages/code-size/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=file-code&color=dark-green)
+![Repo size](https://custom-icon-badges.demolab.com/github/repo-size/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=database)
+![Top language](https://custom-icon-badges.demolab.com/github/languages/top/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?color=dark-green)
 ![Languages](https://custom-icon-badges.demolab.com/github/languages/count/RogerioLS/TCC_MLOPS_UFSCAR_CAR_PLATE?logo=command-palette&color=red)
 [![Pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 </div>
